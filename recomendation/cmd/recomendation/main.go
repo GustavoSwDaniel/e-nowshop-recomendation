@@ -6,6 +6,7 @@ import (
 
 	"github.com/GustavoSwDaniel/e-nowshop-recomendation/recomendation/internal/infrastructure/database"
 	"github.com/GustavoSwDaniel/e-nowshop-recomendation/recomendation/internal/infrastructure/rabbitmq"
+	orderitens "github.com/GustavoSwDaniel/e-nowshop-recomendation/recomendation/internal/orderItens"
 	"github.com/GustavoSwDaniel/e-nowshop-recomendation/recomendation/internal/products"
 	"github.com/GustavoSwDaniel/e-nowshop-recomendation/recomendation/pkg/config"
 )
@@ -29,9 +30,14 @@ func main() {
 			Conn: databaseConn,
 		},
 	}
-	productService.GetOrdersMetrics(54)
+	orderItensService := orderitens.ServiceOrdersItens{
+		RepositoryOrdersItems: &orderitens.RepositoryOrdersItems{
+			Conn: databaseConn,
+		},
+		PorductService: &productService,
+	}
 	consumer := rabbitmq.NewConsumer(conn)
-	if err := consumer.Consumer("Testando", productService.GetOrdersMetrics); err != nil {
+	if err := consumer.Consumer("Testando", orderItensService.GetOrdersMetrics); err != nil {
 		log.Fatalf("Deus pau, %v", err)
 	}
 
