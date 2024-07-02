@@ -15,15 +15,14 @@ func main() {
 	configs := config.LoadConfig()
 	conn, err := rabbitmq.Connect(configs.RabbitMqUrl)
 	if err != nil {
-		log.Fatalf("Deu erro aqui: %v", err)
+		log.Fatalf("Error to connect in brocker: %v", err)
 	}
 	fmt.Println("Conectado")
 	defer conn.Close()
 	databaseConn, err := database.ConnectionDatabase(configs.DatabaseUrl)
 	if err != nil {
-		log.Fatalf("Erro ao conectar no banco")
+		log.Fatalf("Error to connect in database %v", err)
 	}
-	fmt.Println("Conectado ao banco de dados")
 
 	productService := products.ServiceProducs{
 		RepositoryProducts: &products.RepositoryProducts{
@@ -37,8 +36,8 @@ func main() {
 		PorductService: &productService,
 	}
 	consumer := rabbitmq.NewConsumer(conn)
-	if err := consumer.Consumer("Testando", orderItensService.GetOrdersMetrics); err != nil {
-		log.Fatalf("Deus pau, %v", err)
+	if err := consumer.Consumer(configs.Queue, orderItensService.GetOrdersMetrics); err != nil {
+		log.Fatal(err)
 	}
 
 }
